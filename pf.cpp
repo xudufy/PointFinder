@@ -125,8 +125,8 @@ public:
         //correct way is to project point p to the 6 facets of the grid and find the nearest octblock.
         Point fixedP = p;
         for (int i=0; i<3; i++) {
-            if (fixedP.coord[i]>upperBound[i]) fixedP.coord[i] = upperBound[i]- 0.02 * (upperBound[i] - lowerBound[i]);
-            if (fixedP.coord[i]<lowerBound[i]) fixedP.coord[i] = lowerBound[i]+ 0.02 * (upperBound[i] - lowerBound[i]);
+            if (fixedP.coord[i]>upperBound[i]) fixedP.coord[i] = upperBound[i]- 0.02f * (upperBound[i] - lowerBound[i]);
+            if (fixedP.coord[i]<lowerBound[i]) fixedP.coord[i] = lowerBound[i]+ 0.02f * (upperBound[i] - lowerBound[i]);
         }
 
         list<int> searchqueue;
@@ -206,20 +206,25 @@ int main(int argc, char *argv[]) {
         break;
     }
     std::cout<<dataFilePath<<std::endl;
-    ifstream dataFile(dataFilePath);
+    FILE * datafile = fopen(dataFilePath.c_str(), "r");
     
-    string dummy;
-    getline(dataFile, dummy);
+    char *interBuf = new char[5120000];
+    setvbuf(datafile, interBuf, _IOFBF, 5120000);
+
+    char buf[4096];
+    
+    fgets(buf, 4095, datafile);
 
     vector<Point> allpoints;
     allpoints.reserve(3000000);
-    while (dataFile) {
+    while (fgets(buf, 4095, datafile)) {
         float x,y,z;
         int ind;
-        dataFile>>ind>>x>>y>>z;
+        sscanf(buf, "%d%f%f%f", &ind, &x, &y, &z);
         allpoints.emplace_back(x,y,z,ind);
     }
-    
+    fclose(datafile);
+    delete[] interBuf;
 
     int num_threads = 1;
     
